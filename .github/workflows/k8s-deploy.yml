@@ -29,5 +29,15 @@ jobs:
     - name: Use context
       run: kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
     
-    - name: Deploy to K8s
+    - name: Create K8s Secret
+      env:
+        MONGODB_CONN_STRING: ${{ secrets.MONGODB_CONN_STRING }}
+        MONGODB_DB: ${{ secrets.MONGODB_DB }}
+        NODE_ENV: ${{ secrets.NODE_ENV }}
+      run: kubectl apply -f secret-opaque.yaml
+
+    - name: Deploy K8s Resources
       run: kubectl apply -f k8s/
+
+    - name: Descibe K8s Load Balancer
+      run: kubectl describe services app-load-balancer
