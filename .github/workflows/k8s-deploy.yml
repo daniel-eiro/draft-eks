@@ -29,11 +29,19 @@ jobs:
     - name: Use context
       run: kubectl config use-context ${{ secrets.KUBE_CONTEXT }}
     
+    - name: Update secret-opaque.yaml
+      uses: fjogeleit/yaml-update-action@main
+      with:
+        valueFile: 'secret-opaque.yaml'
+        changes: |
+          {
+            "stringData['MONGODB_CONN_STRING']": "${{ secrets.MONGODB_CONN_STRING }}",
+            "stringData['MONGODB_DB']": "${{ secrets.MONGODB_DB }}",
+            "stringData['NODE_ENV']": "${{ secrets.NODE_ENV }}"
+          }
+        commitChange: false
+
     - name: Create K8s Secret
-      env:
-        MONGODB_CONN_STRING: ${{ secrets.MONGODB_CONN_STRING }}
-        MONGODB_DB: ${{ secrets.MONGODB_DB }}
-        NODE_ENV: ${{ secrets.NODE_ENV }}
       run: kubectl apply -f secret-opaque.yaml
 
     - name: Deploy K8s Resources
